@@ -1,0 +1,170 @@
+[
+  {
+    "id": "session_demo_login_jwt",
+    "title": "Fix Auth Token Refresh Bug (401 on expired access token)",
+    "projectName": "shopstream-api",
+    "workspacePath": "/Users/developer/projects/shopstream-api",
+    "branch": "fix/jwt-silent-refresh",
+    "taskDescription": "Investigating intermittent 401 Unauthorized errors when frontend makes requests right as the 15-minute access token expires. Token refresh interceptor appears to race.",
+    "workCompleted": "Identified that the Axios response interceptor was catching 401s but didn't queue subsequent requests while refresh was in flight. Implemented an in-memory promise queue in authClient.ts.",
+    "lastKnownProblem": "Refresh token rotation endpoint /auth/refresh returns 403 Invalid Signature when called concurrently by more than 2 requests. Suspect race condition in Redis token blacklist update.",
+    "nextStep": "Check the Redis multi/exec transaction in src/services/tokenService.ts (line 84). Ensure atomic blacklist-and-issue before replying to frontend.",
+    "validationStatus": "Unit tests pass, but concurrent integration test fails 2 out of 10 runs.",
+    "modifiedFiles": [
+      "src/auth/authClient.ts",
+      "src/services/tokenService.ts",
+      "src/middleware/authMiddleware.ts",
+      "tests/auth.test.ts"
+    ],
+    "untrackedFiles": [
+      "tests/mocks/expiredTokenPayload.json"
+    ],
+    "recentCommits": [
+      "8f41b2a fix(auth): add request queueing to axios response interceptor",
+      "12c904e test(auth): add concurrency test for token refresh",
+      "5e709a1 feat(auth): add initial JWT verification middleware"
+    ],
+    "diffSummary": " 4 files changed, 94 insertions(+), 18 deletions(-)",
+    "activeFile": "src/services/tokenService.ts",
+    "aiSummary": "Working on a race condition in the JWT silent refresh flow causing intermittent 401/403 errors. Added request queueing in the interceptor, but Redis blacklist rotation still fails under concurrency. Next action is to atomize the Redis transaction in tokenService.ts.",
+    "readinessScore": {
+      "total": 95,
+      "items": [
+        {
+          "label": "Task description",
+          "points": 25,
+          "earned": 25,
+          "reason": "Task description is present and detailed."
+        },
+        {
+          "label": "Modified files recorded",
+          "points": 20,
+          "earned": 20,
+          "reason": "4 changed file(s) captured."
+        },
+        {
+          "label": "Last known problem",
+          "points": 20,
+          "earned": 20,
+          "reason": "Problem / blocker is documented."
+        },
+        {
+          "label": "Next action defined",
+          "points": 20,
+          "earned": 20,
+          "reason": "Clear next action documented."
+        },
+        {
+          "label": "Test / validation status",
+          "points": 10,
+          "earned": 0,
+          "reason": "No test status — you won't know if things were working when you left."
+        },
+        {
+          "label": "Working on a feature branch",
+          "points": 5,
+          "earned": 5,
+          "reason": "On branch \"fix/jwt-silent-refresh\" — easy to identify work."
+        }
+      ]
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-10-31T01:15:00.000Z",
+        "event": "Session started on branch fix/jwt-silent-refresh",
+        "type": "save"
+      },
+      {
+        "timestamp": "2026-10-31T01:45:00.000Z",
+        "event": "Modified 4 files in auth module",
+        "type": "info"
+      },
+      {
+        "timestamp": "2026-10-31T02:10:00.000Z",
+        "event": "Checkpoint saved before context switch to prod triage",
+        "type": "save"
+      }
+    ],
+    "createdAt": "2026-10-31T02:10:00.000Z",
+    "status": "paused"
+  },
+  {
+    "id": "session_demo_checkout_webhook",
+    "title": "Stripe Webhook Signature Verification & Idempotency",
+    "projectName": "shopstream-api",
+    "workspacePath": "/Users/developer/projects/shopstream-api",
+    "branch": "feat/stripe-webhooks",
+    "taskDescription": "Implement checkout.session.completed webhook handler to fulfill customer orders and send confirmation emails.",
+    "workCompleted": "Constructed raw body parser in Express for webhook route. Implemented HMAC-SHA256 signature verification with Stripe webhook secret.",
+    "lastKnownProblem": "Raw body parsing interferes with global express.json() middleware if order of app.use() is wrong.",
+    "nextStep": "Mount express.raw({ type: 'application/json' }) strictly before global body parser on the /api/webhooks route.",
+    "validationStatus": "Stripe CLI trigger events successfully verified in local simulator.",
+    "modifiedFiles": [
+      "src/routes/webhookRoutes.ts",
+      "src/controllers/stripeController.ts"
+    ],
+    "untrackedFiles": [],
+    "recentCommits": [
+      "a904bf3 feat: add stripe webhook endpoint with signature verification",
+      "66c0d82 chore: install stripe npm package"
+    ],
+    "diffSummary": " 2 files changed, 52 insertions(+), 4 deletions(-)",
+    "activeFile": "src/routes/webhookRoutes.ts",
+    "aiSummary": "Implementing Stripe checkout webhook verification and idempotency handling. Verified signatures with Stripe CLI, but raw body parsing order conflicts with express.json(). Next step is mounting express.raw on the webhook route prior to global body parser.",
+    "readinessScore": {
+      "total": 95,
+      "items": [
+        {
+          "label": "Task description",
+          "points": 25,
+          "earned": 25,
+          "reason": "Task description is present and detailed."
+        },
+        {
+          "label": "Modified files recorded",
+          "points": 20,
+          "earned": 20,
+          "reason": "2 changed file(s) captured."
+        },
+        {
+          "label": "Last known problem",
+          "points": 20,
+          "earned": 20,
+          "reason": "Problem / blocker is documented."
+        },
+        {
+          "label": "Next action defined",
+          "points": 20,
+          "earned": 20,
+          "reason": "Clear next action documented."
+        },
+        {
+          "label": "Test / validation status",
+          "points": 10,
+          "earned": 0,
+          "reason": "No test status — you won't know if things were working when you left."
+        },
+        {
+          "label": "Working on a feature branch",
+          "points": 5,
+          "earned": 5,
+          "reason": "On branch \"feat/stripe-webhooks\" — easy to identify work."
+        }
+      ]
+    },
+    "timeline": [
+      {
+        "timestamp": "2026-10-30T22:30:00.000Z",
+        "event": "Session started for Stripe integration",
+        "type": "save"
+      },
+      {
+        "timestamp": "2026-10-30T23:45:00.000Z",
+        "event": "Checkpoint saved before midnight team sync",
+        "type": "save"
+      }
+    ],
+    "createdAt": "2026-10-30T23:45:00.000Z",
+    "status": "paused"
+  }
+]

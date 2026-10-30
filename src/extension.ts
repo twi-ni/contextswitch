@@ -15,11 +15,33 @@ export function activate(context: vscode.ExtensionContext) {
   const storagePath = context.globalStoragePath;
   fs.mkdirSync(storagePath, { recursive: true });
 
+  // --- Status Bar Item ---
+  const statusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left,
+    100
+  );
+  statusBarItem.command = "contextswitch.openDashboard";
+  statusBarItem.tooltip = "Click to open ContextSwitch AI Dashboard";
+
+  const updateStatusBar = () => {
+    const sessions = loadSessions(storagePath);
+    const active = sessions.find((s) => s.status === "active");
+    if (active) {
+      statusBarItem.text = `$(pulse) ContextSwitch: ${active.title.slice(0, 25)}${active.title.length > 25 ? "…" : ""}`;
+    } else {
+      statusBarItem.text = `$(history) ContextSwitch (${sessions.length})`;
+    }
+    statusBarItem.show();
+  };
+
+  updateStatusBar();
+
   // --- Command: Save Checkpoint ---
   const saveCmd = vscode.commands.registerCommand(
     "contextswitch.saveSession",
     async () => {
       await saveSessionCommand(storagePath);
+      updateStatusBar();
       // Refresh dashboard if it's open
       if (dashboardPanel) {
         refreshDashboard(dashboardPanel, storagePath, context.extensionUri);
@@ -35,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
         // Already open — just bring it to front
         dashboardPanel.reveal(vscode.ViewColumn.One);
       } else {
-        dashboardPanel = createDashboardPanel(context);
+        dashboardPanel = createDashboardPanel(context, updateStatusBar);
       }
       refreshDashboard(dashboardPanel!, storagePath, context.extensionUri);
     }
@@ -43,6 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // --- Handle messages sent FROM the webview TO the extension ---
   context.subscriptions.push(
+    statusBarItem,
     saveCmd,
     dashCmd,
     // Listen for webview panel being closed
@@ -55,7 +78,10 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // Creates the VS Code Webview panel for the dashboard
-function createDashboardPanel(context: vscode.ExtensionContext): vscode.WebviewPanel {
+function createDashboardPanel(
+  context: vscode.ExtensionContext,
+  onStateChange?: () => void
+): vscode.WebviewPanel {
   const panel = vscode.window.createWebviewPanel(
     "contextswitchDashboard",       // internal ID
     "ContextSwitch AI",             // tab title
@@ -101,6 +127,7 @@ function createDashboardPanel(context: vscode.ExtensionContext): vscode.WebviewP
 
         // Refresh dashboard to show updated status
         refreshDashboard(panel, storagePath, context.extensionUri);
+        onStateChange?.();
 
         vscode.window.showInformationMessage(
           `▶ Resuming: ${session.title}. Next step: ${session.nextStep || "check the dashboard"}`
@@ -110,6 +137,7 @@ function createDashboardPanel(context: vscode.ExtensionContext): vscode.WebviewP
       if (message.command === "saveNew") {
         await saveSessionCommand(storagePath);
         refreshDashboard(panel, storagePath, context.extensionUri);
+        onStateChange?.();
       }
 
       if (message.command === "deleteSession" && message.sessionId) {
@@ -118,6 +146,7 @@ function createDashboardPanel(context: vscode.ExtensionContext): vscode.WebviewP
         const { saveSessions } = await import("./services/sessionStore");
         saveSessions(storagePath, filtered);
         refreshDashboard(panel, storagePath, context.extensionUri);
+        onStateChange?.();
       }
     }
   );
@@ -147,9 +176,12 @@ function getDashboardHtml(
   extensionUri: vscode.Uri,
   sessions: unknown[]
 ): string {
-  // Convert the local dist/webview.js path to a webview-safe URI
+  // Convert local dist/ files to webview-safe URIs
   const scriptUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, "dist", "webview.js")
+  );
+  const styleUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "dist", "webview.css")
   );
 
   // Pass sessions as JSON embedded in the HTML — React reads window.__SESSIONS__
@@ -168,6 +200,7 @@ function getDashboardHtml(
   <title>ContextSwitch AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="${styleUri}">
 </head>
 <body>
   <div id="root"></div>
