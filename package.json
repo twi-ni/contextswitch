@@ -25,6 +25,16 @@
         "title": "ContextSwitch: Open Dashboard"
       }
     ],
+    "configuration": {
+      "title": "ContextSwitch AI",
+      "properties": {
+        "contextswitch.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Optional: Gemini API key for AI-powered session summaries. Get a free key at https://aistudio.google.com/app/apikey"
+        }
+      }
+    },
     "keybindings": [
       {
         "command": "contextswitch.saveSession",
