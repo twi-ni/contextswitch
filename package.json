@@ -1,0 +1,58 @@
+{
+  "name": "contextswitch",
+  "displayName": "ContextSwitch AI",
+  "description": "Your coding session, remembered. Your momentum, restored.",
+  "version": "0.1.0",
+  "publisher": "contextswitch-team",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "contextswitch.saveSession",
+        "title": "ContextSwitch: Save Checkpoint"
+      },
+      {
+        "command": "contextswitch.openDashboard",
+        "title": "ContextSwitch: Open Dashboard"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "contextswitch.saveSession",
+        "key": "ctrl+shift+s",
+        "mac": "cmd+shift+s",
+        "when": "editorFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run build && npx vsce package --no-dependencies",
+    "lint": "echo 'no lint configured'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "allowScripts": {
+    "esbuild@0.20.2": true
+  }
+}
