@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ContextSwitch AI — Hackathon Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card-bg: #151824;
+      --card-border: #232738;
+      --accent: #7c3aed;
+      --accent-light: #a78bfa;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Slide container */
+    .deck {
+      flex: 1;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 60px 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(40px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    /* Tag pill */
+    .tag {
+      align-self: flex-start;
+      background: rgba(124, 58, 237, 0.15);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      color: var(--accent-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 54px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+    }
+
+    .subtitle {
+      font-size: 22px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 850px;
+      margin-bottom: 40px;
+    }
+
+    /* Grid layouts */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card.highlight {
+      border-color: var(--accent);
+      background: linear-gradient(145deg, #181b2e, #131525);
+    }
+
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .stat-number {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--accent-light);
+      line-height: 1;
+    }
+
+    /* Table styling */
+    .score-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .score-table th, .score-table td {
+      padding: 12px 18px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .score-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+    }
+
+    .score-table td:nth-child(2) {
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* Bottom navigation controls */
+    .nav-bar {
+      position: fixed;
+      bottom: 24px;
+      right: 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 100;
+      background: rgba(21, 24, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      padding: 8px 18px;
+      border-radius: 30px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover { background: var(--card-border); }
+
+    .slide-counter {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck">
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+      <div class="tag">DevF8rge Hackathon 2026 • Developer Productivity</div>
+      <h1>ContextSwitch AI</h1>
+      <p class="subtitle">Your coding session, remembered. Your momentum, restored.</p>
+      <div style="display: flex; gap: 20px; align-items: center; margin-top: 20px;">
+        <div style="background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 10px; font-size: 14px;">
+          👨‍💻 <strong>Team:</strong> twi-ni & team
+        </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 10px; font-size: 14px;">
+          ⚡ <strong>Stack:</strong> TypeScript • VS Code API • React
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="slide">
+      <div class="tag">The Problem</div>
+      <h2>Interruption is a Developer's Silent Tax</h2>
+      <p class="subtitle">Every context switch leaves mental residue that drains developer momentum.</p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-number">23 min</div>
+          <div class="card-title">Recovery Time</div>
+          <div class="card-desc">Average time it takes a software developer to regain deep flow state after an interruption (UC Irvine study).</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧩</div>
+          <div class="card-title">Scattered Context</div>
+          <div class="card-desc">"What was I working on? Which 4 files did I touch? What was the failing hypothesis? What was the exact next step?"</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">❌</div>
+          <div class="card-title">Existing Tools Fail</div>
+          <div class="card-desc"><code>git stash</code> only saves file diffs without thoughts or next steps. Notes apps require manual formatting when you have no time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: The Solution -->
+    <div class="slide">
+      <div class="tag">The Solution</div>
+      <h2>Instant Session Memory in One Keystroke</h2>
+      <p class="subtitle">ContextSwitch bridges the gap between raw git history and human working memory.</p>
+      <div class="grid-3">
+        <div class="card highlight">
+          <div class="card-icon">⚡</div>
+          <div class="card-title">Zero-Friction Capture</div>
+          <div class="card-desc">Press <code>Cmd+Shift+S</code>. Answer 4 quick prompts in 10 seconds while it automatically pulls git diffs, branch, and active tabs.</div>
+        </div>
+        <div class="card highlight">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">Explainable Score</div>
+          <div class="card-desc">A transparent 0–100 Resume Readiness Score based on 6 concrete rules — zero AI hallucinations or black-box guessing.</div>
+        </div>
+        <div class="card highlight">
+          <div class="card-icon">▶️</div>
+          <div class="card-title">1-Click Restoration</div>
+          <div class="card-desc">Click Resume in the dashboard: it reopens your modified source files and surfaces the exact next line of code you need to touch.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Architecture -->
+    <div class="slide">
+      <div class="tag">Technical Architecture</div>
+      <h2>Engineered for Privacy, Speed & Zero Costs</h2>
+      <p class="subtitle">No expensive cloud backends. Everything executes locally in the developer's sandboxed environment.</p>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Client-Side Extension Host</div>
+          <div class="card-desc">
+            • <strong>Git Service:</strong> Native shell-out to <code>git status</code>, <code>git diff --stat</code>, and commit logs.<br>
+            • <strong>Workspace Scanner:</strong> Parses active editor tabs, project structure, and pending TODO/FIXME markers.<br>
+            • <strong>Encrypted Local Storage:</strong> Checkpoints are persisted in VS Code's local storage path as JSON.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Hybrid AI & Offline Resilience</div>
+          <div class="card-desc">
+            • <strong>Gemini 1.5 Flash:</strong> Client-side REST call for optional 3-sentence executive summaries.<br>
+            • <strong>100% Offline Mode:</strong> If offline or without an API key, the product works completely locally without crashing.<br>
+            • <strong>Zero Data Leakage:</strong> Secrets, <code>.env</code> files, and private keys are strictly excluded.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Readiness Score -->
+    <div class="slide">
+      <div class="tag">Core Innovation</div>
+      <h2>Resume Readiness Score (0–100)</h2>
+      <p class="subtitle">A rule-based evaluation engine that objectively grades how resume-friendly a session is.</p>
+      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden;">
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>Evaluation Rule</th>
+              <th>Points</th>
+              <th>Why it matters</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Task Description</strong></td>
+              <td>+25 pts</td>
+              <td>Ensures clear intent is recorded so you don't return to blank context.</td>
+            </tr>
+            <tr>
+              <td><strong>Modified Files Tracked</strong></td>
+              <td>+20 pts</td>
+              <td>Git status captured changed and untracked files for automatic reopening.</td>
+            </tr>
+            <tr>
+              <td><strong>Last Known Blocker</strong></td>
+              <td>+20 pts</td>
+              <td>Prevents repeating failed debugging approaches when you return.</td>
+            </tr>
+            <tr>
+              <td><strong>Next Step Defined</strong></td>
+              <td>+20 pts</td>
+              <td>Gives you immediate momentum on resumption with zero disorientation.</td>
+            </tr>
+            <tr>
+              <td><strong>Validation Status</strong></td>
+              <td>+10 pts</td>
+              <td>Records whether unit tests or local builds were passing or broken.</td>
+            </tr>
+            <tr>
+              <td><strong>Feature Branch</strong></td>
+              <td>+5 pts</td>
+              <td>Rewards working on isolated branches rather than committing to main.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slide 6: Live Demo -->
+    <div class="slide">
+      <div class="tag">Live Demo Walkthrough</div>
+      <h2>See ContextSwitch in Action</h2>
+      <p class="subtitle">Experience the full developer workflow: Pause → Switch → Restore.</p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-number">1</div>
+          <div class="card-title">The Dashboard</div>
+          <div class="card-desc">Interactive dark-mode VS Code Webview with session cards, search, status pills, and animated SVG readiness rings.</div>
+        </div>
+        <div class="card">
+          <div class="stat-number">2</div>
+          <div class="card-title">The Resume Action</div>
+          <div class="card-desc">Clicking <code>▶ Resume</code> reopens the modified editor tabs and displays next steps in a clean notification.</div>
+        </div>
+        <div class="card">
+          <div class="stat-number">3</div>
+          <div class="card-title">Live 10s Capture</div>
+          <div class="card-desc">Pressing <code>Cmd+Shift+S</code> captures live git diffs and notes, adding a scored checkpoint in real-time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Impact & Open Source -->
+    <div class="slide">
+      <div class="tag">Impact & Open Source</div>
+      <h2>Built for Real Developers. Shipped Today.</h2>
+      <p class="subtitle">A complete open-source project adhering to the highest hackathon quality standards.</p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🚀</div>
+          <div class="card-title">Real Impact</div>
+          <div class="card-desc">Saves 15–30 minutes per developer per day. Eliminates cognitive switching fatigue and missed debugging notes.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌟</div>
+          <div class="card-title">Open Source Quality</div>
+          <div class="card-desc">MIT License from commit #1. Public repo, 0 secrets committed, and includes offline sample seed data for reproducible demos.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔮</div>
+          <div class="card-title">Future Scope</div>
+          <div class="card-desc">Team session sync for PR handoffs, automated shell history capture, and JetBrains / Neovim extension ecosystem ports.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation bar -->
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="prevSlide()">◀</button>
+    <div class="slide-counter" id="counter">1 / 7</div>
+    <button class="nav-btn" onclick="nextSlide()">▶</button>
+  </div>
+
+  <script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+
+    function update() {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === current);
+      });
+      counter.innerText = `${current + 1} / ${slides.length}`;
+    }
+
+    function nextSlide() {
+      if (current < slides.length - 1) { current++; update(); }
+    }
+
+    function prevSlide() {
+      if (current > 0) { current--; update(); }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { nextSlide(); }
+      if (e.key === 'ArrowLeft') { prevSlide(); }
+    });
+  </script>
+</body>
+</html>

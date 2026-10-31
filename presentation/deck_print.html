@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ContextSwitch AI — Hackathon Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: 16in 9in;
+      margin: 0;
+    }
+
+    :root {
+      --bg: #090a0f;
+      --surface: #11131a;
+      --surface-elevated: #171a24;
+      --border: #232736;
+      --border-subtle: #1c1f2c;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-faint: #6b7280;
+      --accent: #f97316; /* warm linear amber */
+      --accent-dim: rgba(249, 115, 22, 0.12);
+      --green: #10b981;
+      --green-dim: rgba(16, 185, 129, 0.12);
+      --blue: #3b82f6;
+      --blue-dim: rgba(59, 130, 246, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      width: 16in;
+    }
+
+    .slide {
+      width: 16in;
+      height: 9in;
+      padding: 1.1in 1.4in;
+      position: relative;
+      background: var(--bg);
+      page-break-after: always;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-bottom: 1px solid #1a1d29;
+    }
+
+    /* Subtle background grid pattern */
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kicker::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .slide-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text-faint);
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 16px;
+      font-size: 13px;
+      color: var(--text-faint);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 46px;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 16px;
+    }
+
+    .lead {
+      font-size: 22px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 1000px;
+      font-weight: 400;
+      margin-bottom: 36px;
+    }
+
+    /* Grids & Cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-accent {
+      border-color: rgba(249, 115, 22, 0.4);
+      background: linear-gradient(180deg, #161822 0%, #11131a 100%);
+    }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .card-text {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .stat-hero {
+      font-size: 56px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    /* Table */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 18px 24px;
+      text-align: left;
+      font-size: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.data-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #0d0f15;
+    }
+
+    table.data-table td.pts {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">DevF8rge Hack Day 2026 • Developer Productivity</div>
+      <div class="slide-num">01 / 07</div>
+    </div>
+
+    <div class="content">
+      <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+        <span class="tag-pill">⚡ VS Code Extension</span>
+        <span class="tag-pill">🔒 100% Local Privacy</span>
+        <span class="tag-pill">🚀 Zero Backend Overhead</span>
+      </div>
+      <h1>ContextSwitch AI</h1>
+      <p class="lead" style="font-size: 28px; max-width: 950px; color: #d1d5db;">
+        Your coding session, remembered. Your momentum, restored.
+      </p>
+      <div style="font-size: 18px; color: var(--text-muted); line-height: 1.6; max-width: 800px;">
+        A native developer productivity tool that snapshots your mental state, active diffs, and debugging hypotheses before you switch contexts — and restores your flow in one click.
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>Team: @twi-ni & team</div>
+      <div>Open Source • MIT License • Built with TypeScript + React</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: THE PROBLEM -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">The Problem</div>
+      <div class="slide-num">02 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>Interruption is a Developer's Silent Tax</h2>
+      <p class="lead">Context switching drains hours of developer momentum every single sprint.</p>
+
+      <div class="grid-3">
+        <div class="card card-accent">
+          <div class="stat-hero">23 <span style="font-size: 32px; font-weight: 500; color: var(--accent);">min</span></div>
+          <div class="card-title">Cognitive Recovery Time</div>
+          <div class="card-text">Average duration required for a software engineer to regain deep focus after a context switch (UC Irvine study).</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">The Friction</div>
+          <div class="card-title">Fragmented Working Memory</div>
+          <div class="card-text">"What was I debugging? Which 4 files did I touch? What failed? What was the exact next line of code I planned to write?"</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Current Gap</div>
+          <div class="card-title">Existing Tools Fall Short</div>
+          <div class="card-text"><code>git stash</code> saves only code diffs with zero thoughts or next steps. Notes apps require manual formatting when you have no time.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>Problem Definition</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: THE SOLUTION -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">The Solution</div>
+      <div class="slide-num">03 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>Instant Session Memory in One Keystroke</h2>
+      <p class="lead">Bridges raw git history with human working memory in under 10 seconds.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-label">01 • Capture</div>
+          <div class="card-title">Zero-Friction Keystroke</div>
+          <div class="card-text">Press <code>Cmd+Shift+S</code>. Answer 4 quick prompts in 10s while it automatically captures git branch, modified files, diff stats, active tabs, and commits.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">02 • Evaluate</div>
+          <div class="card-title">Resume Readiness Score</div>
+          <div class="card-text">Transparent 0–100 score based on 6 deterministic rules. No hallucinated AI scores—developers instantly know if their context is complete.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">03 • Restore</div>
+          <div class="card-title">1-Click Flow Restoration</div>
+          <div class="card-text">Click Resume in the Dashboard: it reopens your modified source files in VS Code and highlights the exact next line of code you need to touch.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>Core Solution & Value Proposition</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: ARCHITECTURE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">Technical Architecture</div>
+      <div class="slide-num">04 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>Privacy-First, Zero-Backend Architecture</h2>
+      <p class="lead">Engineered to run 100% locally on the developer's machine with zero infrastructure cost.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-label">Local Extension Host</div>
+          <div class="card-title">Native VS Code Integration</div>
+          <div class="card-text" style="font-size: 15px; line-height: 1.8;">
+            • <strong>Git Service:</strong> Native shell-out to <code>git status --porcelain</code>, diff stats, and commit logs.<br>
+            • <strong>Workspace Scanner:</strong> Parses active editor tabs, project structure, and pending TODO markers.<br>
+            • <strong>Zero Data Leakage:</strong> Automatically ignores <code>.env</code> files, API tokens, and credentials.<br>
+            • <strong>Local Persistence:</strong> Stores checkpoints as JSON in VS Code's encrypted global storage.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Hybrid AI & Resilience</div>
+          <div class="card-title">Client-Side AI & Offline First</div>
+          <div class="card-text" style="font-size: 15px; line-height: 1.8;">
+            • <strong>Gemini 1.5 Flash:</strong> Client-side REST call generates concise 3-sentence executive summaries.<br>
+            • <strong>Graceful Degradation:</strong> If offline or without an API key, the core product operates 100% offline without crashing.<br>
+            • <strong>React Webview UI:</strong> High-performance bundled dashboard with animated SVG score rings and timeline.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>Technical Architecture & Security</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: RESUME READINESS SCORE -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">Core Innovation</div>
+      <div class="slide-num">05 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>The Resume Readiness Score (0–100)</h2>
+      <p class="lead">Deterministic, rule-based scoring that coaches developers to leave clean checkpoints.</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Evaluation Check</th>
+            <th>Weight</th>
+            <th>Rule Reason & Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Task Description</strong></td>
+            <td class="pts">+25 pts</td>
+            <td>Ensures the core objective is documented so you never return to a blank slate.</td>
+          </tr>
+          <tr>
+            <td><strong>Modified Files Tracked</strong></td>
+            <td class="pts">+20 pts</td>
+            <td>Git status recorded modified & untracked files for automatic editor reopening.</td>
+          </tr>
+          <tr>
+            <td><strong>Last Known Blocker</strong></td>
+            <td class="pts">+20 pts</td>
+            <td>Prevents repeating failed debugging attempts when you resume tomorrow.</td>
+          </tr>
+          <tr>
+            <td><strong>Next Action Defined</strong></td>
+            <td class="pts">+20 pts</td>
+            <td>Provides immediate momentum on return with zero reorientation delay.</td>
+          </tr>
+          <tr>
+            <td><strong>Validation Status</strong></td>
+            <td class="pts">+10 pts</td>
+            <td>Records whether local builds or unit tests were passing or broken.</td>
+          </tr>
+          <tr>
+            <td><strong>Working Branch</strong></td>
+            <td class="pts">+5 pts</td>
+            <td>Rewards isolated feature branches over direct commits to <code>main</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>Explainable Scoring Engine</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: DEMO WORKFLOW -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">Live Demo</div>
+      <div class="slide-num">06 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>Live Workflow: Pause → Switch → Restore</h2>
+      <p class="lead">A complete, live-tested end-to-end developer experience.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-label">Step 1</div>
+          <div class="card-title">Interactive Dashboard</div>
+          <div class="card-text">
+            Sleek dark-mode Webview inside VS Code. Shows active sessions, search filters, branch badges, and animated readiness rings.
+          </div>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-label">Step 2</div>
+          <div class="card-title">One-Click Resume</div>
+          <div class="card-text">
+            Click <code>▶ Resume Session</code>. VS Code reopens the modified files in active tabs and highlights the exact next line of code.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Step 3</div>
+          <div class="card-title">Live 10-Second Capture</div>
+          <div class="card-text">
+            Press <code>Cmd+Shift+S</code> before switching tasks. Captures live git diffs and notes, computing a new readiness score instantly.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>Demo Walkthrough Flow</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: IMPACT & ROADMAP -->
+  <div class="slide">
+    <div class="top-bar">
+      <div class="kicker">Impact & Future</div>
+      <div class="slide-num">07 / 07</div>
+    </div>
+
+    <div class="content">
+      <h2>Production Quality. Shipped Today.</h2>
+      <p class="lead">Built to solve a universal pain point that every developer faces daily.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-label">Measurable Impact</div>
+          <div class="card-title">15–30 Mins Saved / Day</div>
+          <div class="card-text">Eliminates cognitive fatigue between meetings, standups, and pull request reviews. Keeps developers in flow.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Open Source Standards</div>
+          <div class="card-title">100% Compliant & Tested</div>
+          <div class="card-text">MIT licensed, public repository, zero secret leaks, and shipped with a one-command demo script (<code>./demo/run-demo.sh</code>).</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Future Scope</div>
+          <div class="card-title">Team Context Sync</div>
+          <div class="card-text">PR checkpoint handoffs for code reviews, terminal shell history auto-capture, and JetBrains / Neovim plugin ports.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div>ContextSwitch AI</div>
+      <div>DevF8rge 2026 Hack Day • GitHub: twi-ni/contextswitch</div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -27,11 +27,18 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Keep state in sync if window.__SESSIONS__ gets updated
+  // Keep state in sync if window.__SESSIONS__ gets updated or event fires
   useEffect(() => {
     if (window.__SESSIONS__) {
       setSessions(window.__SESSIONS__);
     }
+    const handler = () => {
+      if (window.__SESSIONS__) {
+        setSessions([...window.__SESSIONS__]);
+      }
+    };
+    window.addEventListener("sessions-updated", handler);
+    return () => window.removeEventListener("sessions-updated", handler);
   }, []);
 
   const handleResume = (id: string) => {
